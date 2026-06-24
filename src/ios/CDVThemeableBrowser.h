@@ -86,9 +86,6 @@
 
 @interface CDVThemeableBrowserViewController : UIViewController <WKNavigationDelegate,CDVScreenOrientationDelegate, UIActionSheetDelegate>{
     @private
-    NSString* _userAgent;
-    NSString* _prevUserAgent;
-    NSInteger _userAgentLockToken;
     UIStatusBarStyle _statusBarStyle;
     CDVThemeableBrowserOptions *_browserOptions;
 
@@ -129,7 +126,7 @@
 - (void)showToolBar:(BOOL)show : (NSString*) toolbarPosition;
 - (void)setCloseButtonTitle:(NSString*)title;
 
-- (id)initWithUserAgent:(NSString*)userAgent prevUserAgent:(NSString*)prevUserAgent browserOptions: (CDVThemeableBrowserOptions*) browserOptions navigationDelete:(CDVThemeableBrowser*) navigationDelegate statusBarStyle:(UIStatusBarStyle) statusBarStyle;
+- (id)initWithBrowserOptions:(CDVThemeableBrowserOptions*)browserOptions navigationDelete:(CDVThemeableBrowser*)navigationDelegate statusBarStyle:(UIStatusBarStyle)statusBarStyle;
 
 + (UIColor *)colorFromRGBA:(NSString *)rgba;
 

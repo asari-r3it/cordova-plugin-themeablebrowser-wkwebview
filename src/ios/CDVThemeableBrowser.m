@@ -19,7 +19,6 @@
 
 #import "CDVThemeableBrowser.h"
 #import <Cordova/CDVPluginResult.h>
-#import <Cordova/CDVUserAgentUtil.h>
 
 #define    kThemeableBrowserTargetSelf @"_self"
 #define    kThemeableBrowserTargetSystem @"_system"
@@ -237,10 +236,8 @@
     }
 
     if (self.themeableBrowserViewController == nil) {
-        NSString* originalUA = [CDVUserAgentUtil originalUserAgent];
         self.themeableBrowserViewController = [[CDVThemeableBrowserViewController alloc]
-                                               initWithUserAgent:originalUA prevUserAgent:[self.commandDelegate userAgent]
-                                               browserOptions: browserOptions
+                                               initWithBrowserOptions:browserOptions
                                                navigationDelete:self
                                                statusBarStyle:[UIApplication sharedApplication].statusBarStyle];
 
@@ -657,12 +654,10 @@
 
 @synthesize currentURL;
 
-- (id)initWithUserAgent:(NSString*)userAgent prevUserAgent:(NSString*)prevUserAgent browserOptions: (CDVThemeableBrowserOptions*) browserOptions navigationDelete:(CDVThemeableBrowser*) navigationDelegate statusBarStyle:(UIStatusBarStyle) statusBarStyle
+- (id)initWithBrowserOptions:(CDVThemeableBrowserOptions*)browserOptions navigationDelete:(CDVThemeableBrowser*)navigationDelegate statusBarStyle:(UIStatusBarStyle)statusBarStyle
 {
     self = [super init];
     if (self != nil) {
-        _userAgent = userAgent;
-        _prevUserAgent = prevUserAgent;
         _browserOptions = browserOptions;
         //_webViewDelegate = [[CDVWKWebViewUIDelegate alloc] init];
         
@@ -1180,7 +1175,6 @@
 - (void)viewDidUnload
 {
     [self.webView loadHTMLString:nil baseURL:nil];
-    [CDVUserAgentUtil releaseLock:&_userAgentLockToken];
     [super viewDidUnload];
 }
 
@@ -1193,7 +1187,6 @@
 {
     [self emitEventForButton:_browserOptions.closeButton];
 
-    [CDVUserAgentUtil releaseLock:&_userAgentLockToken];
     self.currentURL = nil;
 
     if ((self.navigationDelegate != nil) && [self.navigationDelegate respondsToSelector:@selector(browserExit)]) {
@@ -1219,16 +1212,7 @@
 - (void)navigateTo:(NSURL*)url
 {
     NSURLRequest* request = [NSURLRequest requestWithURL:url];
-
-    if (_userAgentLockToken != 0) {
-        [self.webView loadRequest:request];
-    } else {
-        [CDVUserAgentUtil acquireLock:^(NSInteger lockToken) {
-            _userAgentLockToken = lockToken;
-            [CDVUserAgentUtil setUserAgent:_userAgent lockToken:lockToken];
-            [self.webView loadRequest:request];
-        }];
-    }
+    [self.webView loadRequest:request];
 }
 
 - (void)goBack:(id)sender
@@ -1501,7 +1485,7 @@
 //
 //    //BOOL isPDF = [@"true" isEqualToString :[theWebView stringByEvaluatingJavaScriptFromString:@"document.body==null"]];
 //    if (isPDF) {
-//        [CDVUserAgentUtil setUserAgent:_prevUserAgent lockToken:_userAgentLockToken];
+//        The UIWebView implementation used to restore the Cordova WebView user agent here.
 //    }
 //
 //    //[self.navigationDelegate webViewDidFinishLoad:theWebView];
